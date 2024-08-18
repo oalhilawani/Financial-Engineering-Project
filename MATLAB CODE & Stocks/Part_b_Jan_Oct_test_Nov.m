@@ -1,0 +1,83 @@
+% List of CSV files for different assets
+csvFiles = {'F.csv', 'CAT.csv', 'DIS.csv', 'MCD.csv', 'KO.csv', 'PEP.csv', 'WMT.csv', 'C.csv', 'WFC.csv', 'JPM.csv', 'AAPL.csv', 'IBM.csv', 'PFE.csv', 'JNJ.csv', 'XOM.csv', 'MRO.csv', 'ED.csv', 'T.csv', 'VZ.csv', 'NEM.csv'}; % Add more filenames as needed
+
+% Initialize cell arrays to store adjusted closing prices for October and November
+adjCloseOctober2011 = zeros(1, length(csvFiles));
+adjCloseNovember2011 = zeros(1, length(csvFiles));
+
+% Iterate over each asset
+for fileIndex = 1:length(csvFiles)
+    
+    % Load Data_Stock_Features from the current CSV file
+    Stock_Features = detectImportOptions(csvFiles{fileIndex});
+    Data_Stock_Features = readtable(csvFiles{fileIndex}, Stock_Features);
+    Data_Stock_Features.Date = datetime(Data_Stock_Features.Date);
+
+    % Filter out dates for October 2011
+    Data_Stock_Features_October2011 = Data_Stock_Features(month(Data_Stock_Features.Date) == 10 & year(Data_Stock_Features.Date) == 2011, :);
+    
+    % Extract adjusted closing price for the last trading day of October 2011
+    adjCloseOctober2011(fileIndex) = Data_Stock_Features_October2011.AdjClose(end);
+
+    % Filter out dates for November 2011
+    Data_Stock_Features_November2011 = Data_Stock_Features(month(Data_Stock_Features.Date) == 11 & year(Data_Stock_Features.Date) == 2011, :);
+    
+    % Extract adjusted closing price for the last trading day of November 2011
+    adjCloseNovember2011(fileIndex) = Data_Stock_Features_November2011.AdjClose(end);
+end
+
+% Calculate monthly returns for November 2011
+monthlyReturnsNovember2011 = (adjCloseNovember2011 ./ adjCloseOctober2011) - 1;
+
+% Display monthly returns for each asset in November 2011
+for assetIndex = 1:length(csvFiles)
+    disp(['Asset: ', csvFiles{assetIndex}]);
+    disp(['Monthly Return (November 2011): ', num2str(monthlyReturnsNovember2011(assetIndex))]);
+    fprintf('\n');
+end
+
+
+%Portfolio return for just Nov
+
+%MVO - Nov
+
+Portfolio_return_Nov_MVO = monthlyReturnsNovember2011 * x; 
+
+sharpeRatio = Portfolio_return_Nov_MVO / sqrt(std_devi);
+
+disp('Portfolio return for Nov MVO');
+disp(Portfolio_return_Nov_MVO);
+disp('Variance of the portfolio');
+disp(std_devi);
+disp('Standard deviation of the portfolio');
+disp(sqrt(std_devi));
+disp('Sharpe Ratio');
+disp(sharpeRatio);
+
+%Robust MVO - Nov
+
+Portfolio_return_Nov_RMVO = monthlyReturnsNovember2011 * x_RMVO; 
+
+sharpeRatio_1 = Portfolio_return_Nov_RMVO / sqrt(std_devi_RMVO);
+
+disp('Portfolio return for Nov Robust MVO (CL=95%)');
+disp(Portfolio_return_Nov_RMVO);
+disp('Variance of the portfolio');
+disp(std_devi_RMVO);
+disp('Standard deviation of the portfolio');
+disp(sqrt(std_devi_RMVO));
+disp('Sharpe Ratio');
+disp(sharpeRatio_1);
+
+Portfolio_return_Nov_RMVO_1 = monthlyReturnsNovember2011 * x_RMVO_1; 
+
+sharpeRatio_2 = Portfolio_return_Nov_RMVO_1 / sqrt(std_devi_RMVO_1);
+
+disp('Portfolio return for Nov Robust MVO (CL=90%)');
+disp(Portfolio_return_Nov_RMVO_1);
+disp('Variance of the portfolio');
+disp(std_devi_RMVO_1);
+disp('Standard deviation of the portfolio');
+disp(sqrt(std_devi_RMVO_1));
+disp('Sharpe Ratio');
+disp(sharpeRatio_2);
